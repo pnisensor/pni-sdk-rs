@@ -107,7 +107,7 @@ impl From<ReadError> for RWError {
 ///
 /// ```
 /// # {
-/// use targetpoint3::{TargetPoint3, DataID};
+/// use targetpoint3::{TargetPoint3, acquisition::DataID};
 /// let mut tp3 = targetpoint3::TargetPoint3::connect(None).expect("Couldn't Auto-Detect connected TargetPoint3");
 /// tp3.set_data_components(vec![DataID::AccelX]);
 /// println!("Accel X: {}", tp3.get_data().unwrap().accel_x.unwrap());
@@ -394,7 +394,7 @@ mod tests {
     fn continuous_mode() {
         let tp3 = TargetPoint3::connect(None).expect("connects to device");
         let mut tp3 = tp3
-            .easy_continuous_mode(0.25, vec![DataID::AccelX])
+            .continuous_mode_easy(0.25, vec![DataID::AccelX])
             .expect("got into cont mode");
         {
             let mut iter = tp3.iter();
@@ -403,7 +403,7 @@ mod tests {
             }
         }
 
-        let mut tp3 = tp3.easy_stop_continuous_mode().unwrap();
+        let mut tp3 = tp3.stop_continuous_mode_easy().unwrap();
         {
             let mut iter = tp3.iter();
             assert!(

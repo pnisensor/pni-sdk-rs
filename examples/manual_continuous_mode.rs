@@ -1,5 +1,4 @@
-use targetpoint3::AcqParams;
-use targetpoint3::DataID;
+use targetpoint3::acquisition::{AcqParams, DataID};
 use targetpoint3::TargetPoint3;
 
 fn main() {

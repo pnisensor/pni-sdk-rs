@@ -10,3 +10,10 @@ PNI’s compassing and AHRS modules, including the Prime, TCM, SeaTrax, and Trax
 - [ ] Considering: Flushing serial after every error (may make this opt-in)
 - [ ] nicer wrappers for stuff like calibration (to keep track of sample points) and other higher-level abstractions
 - [ ] Derive on the Get macro, or a more centralized codegen for our SDK
+
+## A note about testing
+When running `cargo test`, it defaults to running tests in parallel, with the number of jobs being the number of CPUs on your machine.
+
+If tests are performed in parallel, then multiple threads will try to connect to the serialport, leading to a "device busy" failure. 
+
+Please run `cargo test -j1` to limit the number of jobs to 1. Each test should have its own scope and `drop` the serialport (or struct containing it) after it completes its test

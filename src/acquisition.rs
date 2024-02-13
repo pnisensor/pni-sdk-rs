@@ -369,16 +369,17 @@ impl TargetPoint3 {
     /// # Examples
     /// ```
     /// # use targetpoint3::*;
+    /// # use targetpoint3::acquisition::*;
     /// # {
     /// # let mut tp3 = TargetPoint3::connect(None).unwrap();
     /// tp3.set_acq_params(AcqParams { acquisition_mode: false, flush_filter: false, sample_delay: 0.2 }).unwrap();
     /// tp3.set_data_components(vec![DataID::AccelX]).unwrap();
     /// tp3.save().unwrap();
-    /// tp3.start_continuous_mode_raw().unwrap();
+    /// tp3.start_continuous_mode().unwrap();
     /// tp3.power_down().unwrap();
     /// let mut tp3 = TargetPoint3::connect(None).unwrap();
     /// tp3.power_up().unwrap();
-    /// tp3.stop_continuous_mode_raw().unwrap();
+    /// tp3.stop_continuous_mode().unwrap();
     /// tp3.save().unwrap();
     /// tp3.power_down().unwrap();
     /// tp3 = TargetPoint3::connect(None).unwrap();
@@ -417,7 +418,7 @@ impl TargetPoint3 {
     /// * `sample_delay` - Time, in seconds, between samples. See SetAcqParams command in user
     /// manual for nuances
     /// * `data_components` - List of data types to acquire from device
-    pub fn easy_continuous_mode(
+    pub fn continuous_mode_easy(
         mut self,
         sample_delay: f32,
         data_components: Vec<DataID>,
@@ -450,7 +451,7 @@ impl TargetPoint3 {
     /// If you do not want more predictable behavior that doesn't violate these contracts, you may
     /// use [TargetPoint3::set_acq_params], TargetPoint3::stop_continuous_mode_raw], [TargetPoint3::power_down], and
     /// [TargetPoint3::power_up] in that order. See user manual for more help.
-    pub fn easy_stop_continuous_mode(mut self) -> Result<Self, Box<dyn Error>> {
+    pub fn stop_continuous_mode_easy(mut self) -> Result<Self, Box<dyn Error>> {
         //self.set_acq_params(AcqParams { acquisition_mode: true, flush_filter: false, sample_delay: 0f32 })?;
         self.stop_continuous_mode()?;
         self.save()?;
