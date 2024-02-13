@@ -21,10 +21,6 @@ extern crate derive_more;
 use command::Command;
 use responses::{Get, ModInfoResp};
 
-//TODO async
-//links in docs
-//call endframe for all errors and proxy them up, probably RAII pattern will help here
-//nicer wrappers for stuff like calibration (to keep track of sample points) and other higher-level abstractions
 
 /// Error that ocurred while reading data back from the device
 #[derive(Debug, Display)]

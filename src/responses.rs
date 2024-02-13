@@ -1,6 +1,5 @@
 use crate::{ReadError, TargetPoint3};
 
-//TODO: Derive
 /// Represents a datastream that can emit out a `T`
 pub trait Get<T> {
     /// Blocks on device until we recieve enough data to parse `T`
