@@ -7,3 +7,6 @@ edition = "2021"
 crc16 = "0.4.0"
 derive_more = "0.99.17"
 serialport = "4.3.0"
+
+[features]
+reserved = []

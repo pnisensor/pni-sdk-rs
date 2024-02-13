@@ -35,7 +35,7 @@ impl TargetPoint3 {
     /// Returns the sample count, unless this is the last sample point, in which case returns the calibration score.
     /// If the sample was succesful, calibration should return 1 more
     /// than the previous sample count (or return the score)
-    pub fn take_user_cal_sample(&mut self) -> Result<UserCalResponse, RWError> {
+    fn take_user_cal_sample_impl(&mut self) -> Result<UserCalResponseReserved, RWError> {
         self.write_frame(Command::TakeUserCalSample, None)?;
 
         let expected_size = Get::<u16>::get(self)?;
@@ -44,9 +44,9 @@ impl TargetPoint3 {
         if resp_command == Command::UserCalSampleCount.discriminant() {
             let sample_count = Get::<u32>::get(self)?;
             self.end_frame(expected_size)?;
-            Ok(UserCalResponse::SampleCount(sample_count))
+            Ok(UserCalResponseReserved::SampleCount(sample_count))
         } else if resp_command == Command::UserCalScore.discriminant() {
-            let ret = UserCalResponse::UserCalScore {
+            let ret = UserCalResponseReserved::UserCalScore {
                 mag_cal_score: Get::<f32>::get(self)?,
                 reserved: Get::<f32>::get(self)?,
                 accel_cal_score: Get::<f32>::get(self)?,
@@ -65,8 +65,22 @@ impl TargetPoint3 {
         }
     }
 
+    /// This frame commands the TargetPoint3 to take a sample during user calibration.
+    ///
+    /// Returns the sample count, unless this is the last sample point, in which case returns the calibration score.
+    /// If the sample was succesful, calibration should return 1 more
+    /// than the previous sample count (or return the score)
+    #[cfg(feature = "reserved")]
+    pub fn take_user_cal_sample_reserved(&mut self) -> Result<UserCalResponseReserved, RWError> {
+        self.take_user_cal_sample_impl()
+    }
+
+    pub fn take_user_cal_sample(&mut self) -> Result<UserCalResponse, RWError> {
+        Ok(self.take_user_cal_sample_impl()?.into())
+    }
+
     /// This command aborts the calibration process. The prior calibration results are retained.
-    pub fn stop_cal_reserved(&mut self) -> Result<(), WriteError> {
+    pub fn stop_cal(&mut self) -> Result<(), WriteError> {
         self.write_frame(Command::StopCal, None)?;
         Ok(())
     }
@@ -197,6 +211,38 @@ impl TargetPoint3 {
 }
 
 pub enum UserCalResponse {
+    /// The calibration score is automatically sent upon taking the final calibration point.
+    UserCalScore {
+        /// Represents the over-riding indicator of the quality of the magnetometer calibration.  Acceptable scores will be ≤1 for full range calibration, ≤2 for other methods. Note that it is possible to get acceptable scores for DistributionError and TiltError and still have a rather high MagCalScore value. The most likely reason for this is the TargetPoint3 is close to a source of local magnetic distortion that is not fixed with respect to the device.
+        mag_cal_score: f32,
+
+        /// Represents the over-riding indicator of the quality of the accelerometer calibration.  An acceptable score is ≤1.
+        accel_cal_score: f32,
+
+        /// Indicates if the distribution of sample points is good, with an emphasis on the heading distribution. The score should be 0. Significant clumping or a lack of sample points in a particular section can result in a poor score.
+        distribution_error: f32,
+
+        /// Indicates if the TargetPoint3 experienced sufficient tilt during the calibration, taking into account the calibration method. The score should be 0.
+        tilt_error: f32,
+
+        /// This reports half the full pitch range of sample points. For example, if the device is pitched +25º to -15º, the TiltRange value would be 20º (as derived from [+25º - {-15º}]/2). For Full-Range Calibration and Hard-Iron-Only Calibration, this should be ≥30°. For 2D Calibration, ideally this should be ≈2°. For Limited-Tilt Calibration the value should be as large a possible given the user’s constraints.
+        tilt_range: f32,
+    },
+
+    /// This frame is sent from the TargetPoint3 after taking a calibration sample point. The payload contains the sample count with the range of 0 to 32. Payload 0 is sent from TargetPoint3 after StartCal is received by TargetPoint3, it indicates user calibration start, and TargetPoint3 is ready to take samples. Payload 1 to 32 indicates each point sampled successfully.  SampleCount(u32)
+    SampleCount(u32),
+}
+
+impl From<UserCalResponseReserved> for UserCalResponse {
+    fn from(value: UserCalResponseReserved) -> Self {
+        match value {
+            UserCalResponseReserved::SampleCount(c) => UserCalResponse::SampleCount(c),
+            UserCalResponseReserved::UserCalScore { mag_cal_score, reserved: _, accel_cal_score, distribution_error, tilt_error, tilt_range } => UserCalResponse::UserCalScore { mag_cal_score, accel_cal_score, distribution_error, tilt_error, tilt_range}
+        }
+    }
+}
+
+pub enum UserCalResponseReserved {
     /// The calibration score is automatically sent upon taking the final calibration point.
     UserCalScore {
         /// Represents the over-riding indicator of the quality of the magnetometer calibration.  Acceptable scores will be ≤1 for full range calibration, ≤2 for other methods. Note that it is possible to get acceptable scores for DistributionError and TiltError and still have a rather high MagCalScore value. The most likely reason for this is the TargetPoint3 is close to a source of local magnetic distortion that is not fixed with respect to the device.

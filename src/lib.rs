@@ -337,13 +337,10 @@ impl TargetPoint3 {
         }
     }
 
-    /// **Note:** Please only use this if your use-case absolutely needs it. We suggest using [TargetPoint3::power_down]
-    /// instead
-    ///
     /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The TargetPoint3 will power up when it receives any signal on the native UART Rx line.
     /// This frame frequently does not recieve a response even when it works, it's suggested that
     /// you ignore ParseErrors
-    pub fn power_down_raw(&mut self) -> Result<(), RWError> {
+    fn power_down_impl(&mut self) -> Result<(), RWError> {
         self.write_frame(Command::PowerDown, None)?;
 
         let expected_size = Get::<u16>::get(self)?;
@@ -357,6 +354,17 @@ impl TargetPoint3 {
             )))
         }
     }
+    
+    /// You should consider using [Self::power_down] instead of [Self::power_down_raw] to avoid
+    /// weird serialport behavior
+    ///
+    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The TargetPoint3 will power up when it receives any signal on the native UART Rx line.
+    /// This frame frequently does not recieve a response even when it works, it's suggested that
+    /// you ignore ParseErrors
+    #[cfg(feature = "reserved")]
+    pub fn power_down_raw(&mut self) -> Result<(), RWError> {
+        self.power_down_impl()
+    }
 
     //NOTE: when powering up, we want to connect to the same device in case multiple devices were
     //provided? Otherwise we basically force the end user to deliberately re-choose the new device
@@ -366,7 +374,7 @@ impl TargetPoint3 {
     /// Similar to power_down_raw, but ignores common errors due to power down, and takes ownership to hang up the socket and force developer to create a new tp3 object
     /// The very action of reconnecting the device will cause it to power back up.
     pub fn power_down(mut self) -> Result<(), RWError> {
-        let ret = match self.power_down_raw() {
+        let ret = match self.power_down_impl() {
             Ok(_) => Ok(()),
             Err(RWError::ReadError(_)) => Ok(()),
             Err(e) => Err(e),

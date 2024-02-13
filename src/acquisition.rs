@@ -246,7 +246,7 @@ impl TargetPoint3 {
     /// # Arguments
     /// * `acq_params` - Parameters to set for next acquisition
     pub fn set_acq_params(&mut self, acq_params: AcqParams) -> Result<(), RWError> {
-        self.set_acq_params_reserved(AcqParamsReserved {
+        self.set_acq_params_impl(AcqParamsReserved {
             acquisition_mode: acq_params.acquisition_mode,
             flush_filter: acq_params.flush_filter,
             reserved: f32::from_be_bytes([0u8, 0u8, 0u8, 0u8]),
@@ -257,7 +257,7 @@ impl TargetPoint3 {
     /// Like set_acq_parameters, but gives the user the ability to write to the PNI reserved
     /// fields. Note different parameter ordering (done to reflect order inside payload)
     /// Confused? Just use set_acq_parameters
-    pub fn set_acq_params_reserved(
+    pub fn set_acq_params_impl(
         &mut self,
         acq_params: AcqParamsReserved,
     ) -> Result<(), RWError> {
@@ -279,10 +279,28 @@ impl TargetPoint3 {
             )))
         }
     }
+    
+    /// Like set_acq_parameters, but gives the user the ability to write to the PNI reserved
+    /// fields. Note different parameter ordering (done to reflect order inside payload)
+    /// Confused? Just use set_acq_parameters
+    #[cfg(feature = "reserved")]
+    pub fn set_acq_params_reserved(
+        &mut self,
+        acq_params: AcqParamsReserved,
+    ) -> Result<(), RWError> {
+        self.set_acq_params_impl(acq_params)
+    }
+    
+    /// Same as get_acq_params, but instead returns a tuple whose first value are the AcqParams and
+    /// whose second value are the reserved bits
+    #[cfg(feature = "reserved")]
+    pub fn get_acq_params_reserved(&mut self) -> Result<AcqParamsReserved, RWError> {
+        self.get_acq_params_impl()
+    }
 
     /// Same as get_acq_params, but instead returns a tuple whose first value are the AcqParams and
     /// whose second value are the reserved bits
-    pub fn get_acq_params_reserved(&mut self) -> Result<AcqParamsReserved, RWError> {
+    pub fn get_acq_params_impl(&mut self) -> Result<AcqParamsReserved, RWError> {
         self.write_frame(Command::GetAcqParams, None)?;
 
         let expected_size = Get::<u16>::get(self)?;
@@ -308,7 +326,7 @@ impl TargetPoint3 {
 
     /// This frame queries the unit for acquisition parameters.
     pub fn get_acq_params(&mut self) -> Result<AcqParams, RWError> {
-        Ok(self.get_acq_params_reserved()?.into())
+        Ok(self.get_acq_params_impl()?.into())
     }
 
     /// This frame defines what data is output when GetData is sent. Table 7-5 in the user manual summarizes the various data components and more detail follows this table. Note that this is not a query for the device's model type and software revision (see GetModInfo). The first byte of the payload indicates the number of data components followed by the data component IDs. Note that the sequence of the data components defined by SetDataComponents will match the output sequence of GetDataResp.
@@ -367,14 +385,14 @@ impl TargetPoint3 {
     /// tp3.power_up().unwrap();
     /// # }
     /// ```
-    pub fn start_continuous_mode_raw(&mut self) -> Result<(), RWError> {
+    pub fn start_continuous_mode(&mut self) -> Result<(), RWError> {
         self.write_frame(Command::StartContinuousMode, None)?;
         Ok(())
     }
 
     /// This frame commands the TargetPoint3 to stop data output when in Continuous Acquisition Mode. The frame has no payload.
     /// You must call [TargetPoint3::save] and power cycle the device after calling [TargetPoint3::stop_continuous_mode] to stop continuous output
-    pub fn stop_continuous_mode_raw(&mut self) -> Result<(), RWError> {
+    pub fn stop_continuous_mode(&mut self) -> Result<(), RWError> {
         self.write_frame(Command::StopContinuousMode, None)?;
         Ok(())
     }
@@ -411,7 +429,7 @@ impl TargetPoint3 {
         })?;
         self.set_data_components(data_components)?;
         self.save()?;
-        self.start_continuous_mode_raw()?;
+        self.start_continuous_mode()?;
         self.power_down()?;
         let mut newtp3 = TargetPoint3::connect(None)?;
         newtp3.power_up()?;
@@ -434,7 +452,7 @@ impl TargetPoint3 {
     /// [TargetPoint3::power_up] in that order. See user manual for more help.
     pub fn easy_stop_continuous_mode(mut self) -> Result<Self, Box<dyn Error>> {
         //self.set_acq_params(AcqParams { acquisition_mode: true, flush_filter: false, sample_delay: 0f32 })?;
-        self.stop_continuous_mode_raw()?;
+        self.stop_continuous_mode()?;
         self.save()?;
         self.power_down()?;
         let mut newtp3 = TargetPoint3::connect(None)?;

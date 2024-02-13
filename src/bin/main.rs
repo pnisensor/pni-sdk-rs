@@ -1,4 +1,5 @@
-use targetpoint3::{DataID, TargetPoint3};
+use targetpoint3::TargetPoint3;
+use targetpoint3::acquisition::DataID;
 
 fn main() {
     let tp3 = TargetPoint3::connect(None).expect("connects to device");

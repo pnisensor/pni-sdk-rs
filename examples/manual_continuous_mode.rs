@@ -19,7 +19,7 @@ fn main() {
         tp3.set_data_components(vec![DataID::AccelX])
     );
     println!("Get Data Components: \n{:?}", tp3.get_data());
-    println!("Set Cont Mode: \n{:?}", tp3.start_continuous_mode_raw());
+    println!("Set Cont Mode: \n{:?}", tp3.start_continuous_mode());
     println!("Save config: \n{:?}", tp3.save());
     println!("Power down: \n{:?}", tp3.power_down());
 
