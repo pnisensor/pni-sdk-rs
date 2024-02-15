@@ -2,6 +2,13 @@
 name = "pni-sdk"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+keywords = ["drivers", "compass", "ahrs", "pni", "magnetometer"]
+categories = ["science::geo", "api-bindings", "aerospace::drones", "aerospace::protocols"]
+description = "Provides convenient, low-level bindings to several PNI-manufactured sensors, including compass and some AHRS sensors that support the PNI Serial Binary Protocol."
+homepage = "https://www.pnicorp.com/targetpoint3/"
+repository = "https://github.com/pnisensor/pni-sdk-rs"
+readme = "README.md"
 
 [dependencies]
 crc16 = "0.4.0"
