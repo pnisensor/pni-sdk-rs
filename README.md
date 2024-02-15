@@ -11,6 +11,7 @@ PNI’s compassing and (soon AHRS) modules, including the Prime, TCM, SeaTrax, a
 - [ ] feat: nicer wrappers for stuff like calibration (to keep track of sample points) and other higher-level abstractions
 - [ ] cleanup: Derive on the Get macro, or a more centralized codegen for our SDK
 - [ ] feat: Async API
+- [ ] feat: support for ASCII devices (will result in several breaking changes!)
 
 ## A note about testing
 When running `cargo test`, it defaults to running tests in parallel, with the number of jobs being the number of CPUs on your machine.

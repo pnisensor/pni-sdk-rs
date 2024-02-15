@@ -101,19 +101,19 @@ impl From<ReadError> for RWError {
     }
 }
 
-/// Represents a connected TargetPoint3 device
+/// Represents a connected device
 ///
 /// # Examples
 ///
 /// ```
 /// # {
-/// use targetpoint3::{TargetPoint3, acquisition::DataID};
-/// let mut tp3 = targetpoint3::TargetPoint3::connect(None).expect("Couldn't Auto-Detect connected TargetPoint3");
+/// use pni_sdk::{Device, acquisition::DataID};
+/// let mut tp3 = pni_sdk::Device::connect(None).expect("Couldn't Auto-Detect connected device");
 /// tp3.set_data_components(vec![DataID::AccelX]);
 /// println!("Accel X: {}", tp3.get_data().unwrap().accel_x.unwrap());
 /// # }
 /// ```
-pub struct TargetPoint3 {
+pub struct Device {
     serialport: Box<dyn SerialPort>,
 
     /// Checksum of the current frame so far
@@ -123,8 +123,8 @@ pub struct TargetPoint3 {
     read_bytes: u16,
 }
 
-impl TargetPoint3 {
-    /// Creates a new TargetPoint3 with provided serialport
+impl Device {
+    /// Creates a new Device with provided serialport
     pub fn new(serialport: impl Into<Box<dyn SerialPort>>) -> Self {
         Self {
             serialport: serialport.into(),
@@ -133,7 +133,7 @@ impl TargetPoint3 {
         }
     }
 
-    /// Creates and connects to a TargetPoint3, auto-detecting the serial port, and choosing the
+    /// Creates and connects to a device, auto-detecting the serial port, and choosing the
     /// default baud rate of 38400
     ///
     /// # Arguments
@@ -144,7 +144,7 @@ impl TargetPoint3 {
     ///
     /// ```
     /// # {
-    /// let tp3 = targetpoint3::TargetPoint3::connect(None).expect("Auto-Detect connected TargetPoint3");
+    /// let tp3 = pni_sdk::Device::connect(None).expect("Auto-Detect connected Device");
     /// # }
     /// ```
     pub fn connect(port: Option<String>) -> Result<Self, Box<dyn Error>> {
@@ -172,7 +172,7 @@ impl TargetPoint3 {
 
         println!("Using port {}", port);
 
-        Ok(TargetPoint3::new(
+        Ok(Device::new(
             serialport::new(port, 38400)
                 .data_bits(serialport::DataBits::Eight)
                 .stop_bits(serialport::StopBits::One)
@@ -289,8 +289,8 @@ impl TargetPoint3 {
         }
     }
 
-    /// This frame commands the TargetPoint3 to save internal configurations and user calibration to non-volatile memory. Internal configurations and user calibration are restored on power up. The frame has no payload. This is the ONLY command that causes the device to save information to non-volatile memory.
-    /// See also: [TargetPoint3::get_config], [TargetPoint3::set_config]
+    /// This frame commands the device to save internal configurations and user calibration to non-volatile memory. Internal configurations and user calibration are restored on power up. The frame has no payload. This is the ONLY command that causes the device to save information to non-volatile memory.
+    /// See also: [Device::get_config], [Device::set_config]
     pub fn save(&mut self) -> Result<(), RWError> {
         self.write_frame(Command::Save, None)?;
 
@@ -337,7 +337,7 @@ impl TargetPoint3 {
         }
     }
 
-    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The TargetPoint3 will power up when it receives any signal on the native UART Rx line.
+    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The device will power up when it receives any signal on the native UART Rx line.
     /// This frame frequently does not recieve a response even when it works, it's suggested that
     /// you ignore ParseErrors
     fn power_down_impl(&mut self) -> Result<(), RWError> {
@@ -358,7 +358,7 @@ impl TargetPoint3 {
     /// You should consider using [Self::power_down] instead of [Self::power_down_raw] to avoid
     /// weird serialport behavior
     ///
-    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The TargetPoint3 will power up when it receives any signal on the native UART Rx line.
+    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The device will power up when it receives any signal on the native UART Rx line.
     /// This frame frequently does not recieve a response even when it works, it's suggested that
     /// you ignore ParseErrors
     #[cfg(feature = "reserved")]
@@ -370,7 +370,7 @@ impl TargetPoint3 {
     //provided? Otherwise we basically force the end user to deliberately re-choose the new device
     //anyhow by re-constructing tp3. Consuming self in power down also drops the serial port which
     //is desireable
-    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The TargetPoint3 will power up when it receives any signal on the native UART Rx line.
+    /// This frame is used to power-down the module. The frame has no payload. The command will power down all peripherals including the sensors, microprocessor, and RS-232 driver. However, the driver chip has a feature to keep the Rx line enabled. The device will power up when it receives any signal on the native UART Rx line.
     /// Similar to power_down_raw, but ignores common errors due to power down, and takes ownership to hang up the socket and force developer to create a new tp3 object
     /// The very action of reconnecting the device will cause it to power back up.
     pub fn power_down(mut self) -> Result<(), RWError> {
@@ -392,7 +392,7 @@ mod tests {
 
     #[test]
     fn continuous_mode() {
-        let tp3 = TargetPoint3::connect(None).expect("connects to device");
+        let tp3 = Device::connect(None).expect("connects to device");
         let mut tp3 = tp3
             .continuous_mode_easy(0.25, vec![DataID::AccelX])
             .expect("got into cont mode");

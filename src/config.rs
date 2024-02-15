@@ -1,6 +1,6 @@
 use crate::command::Command;
 use crate::responses::Get;
-use crate::{RWError, ReadError, TargetPoint3};
+use crate::{RWError, ReadError, Device};
 
 /// Represents a configuration parameter ID only. See also: ConfigParam, which represents ID +
 /// value
@@ -191,7 +191,7 @@ pub enum Baud {
     B115200,
 }
 
-impl Get<Baud> for TargetPoint3 {
+impl Get<Baud> for Device {
     fn get(&mut self) -> Result<Baud, ReadError> {
         use Baud::*;
         let mut rbuff = [0u8; 1];
@@ -243,7 +243,7 @@ pub enum MountingRef {
     ZDown270,
 }
 
-impl Get<MountingRef> for TargetPoint3 {
+impl Get<MountingRef> for Device {
     fn get(&mut self) -> Result<MountingRef, ReadError> {
         use MountingRef::*;
         let mut rbuff = [0u8; 1];
@@ -278,7 +278,7 @@ impl Get<MountingRef> for TargetPoint3 {
     }
 }
 
-impl TargetPoint3 {
+impl Device {
     /// Sets configuration on device, without saving to volatile memory. These configurations can only be set one at time.
     /// To save these in non-volatile memory, call [TargetPoint3::save].
     /// See also: [TargetPoint3::get_config]

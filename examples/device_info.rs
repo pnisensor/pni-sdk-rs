@@ -1,7 +1,7 @@
-use targetpoint3::TargetPoint3;
+use pni_sdk::Device;
 
 fn main() {
-    let mut tp3 = TargetPoint3::connect(None).expect("connects to device");
+    let mut tp3 = Device::connect(None).expect("connects to device");
     println!(
         "Module Info: {}",
         tp3.get_mod_info().expect("Couldn't get module info")

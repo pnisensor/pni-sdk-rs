@@ -129,6 +129,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2900ede94e305130c13ddd391e0ab7cbaeb783945ae07a279c268cb05109c6cb"
 
 [[package]]
+name = "pni-sdk"
+version = "0.1.0"
+dependencies = [
+ "crc16",
+ "derive_more",
+ "serialport",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -235,15 +244,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "targetpoint3"
-version = "0.1.0"
-dependencies = [
- "crc16",
- "derive_more",
- "serialport",
 ]
 
 [[package]]

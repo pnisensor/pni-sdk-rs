@@ -1,8 +1,8 @@
-use targetpoint3::acquisition::{AcqParams, DataID};
-use targetpoint3::TargetPoint3;
+use pni_sdk::acquisition::{AcqParams, DataID};
+use pni_sdk::Device;
 
 fn main() {
-    let mut tp3 = TargetPoint3::connect(None).expect("Connect to TP3");
+    let mut tp3 = Device::connect(None).expect("Connect to TP3");
     println!("Module Info: \n{:?}", tp3.get_mod_info());
     println!("Serial Number: \n{:?}", tp3.serial_number());
     println!(
@@ -22,7 +22,7 @@ fn main() {
     println!("Save config: \n{:?}", tp3.save());
     println!("Power down: \n{:?}", tp3.power_down());
 
-    tp3 = TargetPoint3::connect(None).expect("Connect to TP3");
+    tp3 = Device::connect(None).expect("Connect to TP3");
     println!("Power up result {:?}", tp3.power_up());
     println!("S/N result {:?}", tp3.serial_number());
     for data in tp3.iter() {

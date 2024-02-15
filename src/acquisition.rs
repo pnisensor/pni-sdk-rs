@@ -1,6 +1,6 @@
 use crate::command::Command;
 use crate::responses::Get;
-use crate::{RWError, ReadError, TargetPoint3};
+use crate::{RWError, ReadError, Device};
 
 use std::error::Error;
 
@@ -131,7 +131,7 @@ pub struct Data {
     pub mag_accuracy: Option<f32>,
 }
 
-impl Get<Data> for TargetPoint3 {
+impl Get<Data> for Device {
     fn get(&mut self) -> Result<Data, ReadError> {
         let mut data_struct = Data {
             heading: None,
@@ -240,7 +240,7 @@ pub struct AcqParams {
     pub sample_delay: f32,
 }
 
-impl TargetPoint3 {
+impl Device {
     /// This frame sets the sensor acquisition parameters in the TargetPoint3.
     ///
     /// # Arguments
@@ -368,8 +368,8 @@ impl TargetPoint3 {
     ///
     /// # Examples
     /// ```
-    /// # use targetpoint3::*;
-    /// # use targetpoint3::acquisition::*;
+    /// # use pni_sdk::*;
+    /// # use pni_sdk::acquisition::*;
     /// # {
     /// # let mut tp3 = TargetPoint3::connect(None).unwrap();
     /// tp3.set_acq_params(AcqParams { acquisition_mode: false, flush_filter: false, sample_delay: 0.2 }).unwrap();
@@ -432,7 +432,7 @@ impl TargetPoint3 {
         self.save()?;
         self.start_continuous_mode()?;
         self.power_down()?;
-        let mut newtp3 = TargetPoint3::connect(None)?;
+        let mut newtp3 = Device::connect(None)?;
         newtp3.power_up()?;
 
         Ok(newtp3)
@@ -456,7 +456,7 @@ impl TargetPoint3 {
         self.stop_continuous_mode()?;
         self.save()?;
         self.power_down()?;
-        let mut newtp3 = TargetPoint3::connect(None)?;
+        let mut newtp3 = Device::connect(None)?;
         newtp3.power_up()?;
         Ok(newtp3)
     }
@@ -466,7 +466,7 @@ impl TargetPoint3 {
     }
 }
 
-pub struct ContinuousModeIterator<'a>(&'a mut TargetPoint3);
+pub struct ContinuousModeIterator<'a>(&'a mut Device);
 
 impl<'a> Iterator for ContinuousModeIterator<'a> {
     type Item = Result<Data, ReadError>;

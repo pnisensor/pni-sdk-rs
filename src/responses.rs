@@ -1,4 +1,4 @@
-use crate::{ReadError, TargetPoint3};
+use crate::{ReadError, Device};
 
 /// Represents a datastream that can emit out a `T`
 pub trait Get<T> {
@@ -10,7 +10,7 @@ pub trait Get<T> {
     fn get_string(&mut self) -> Result<String, ReadError>;
 }
 
-impl Get<f64> for TargetPoint3 {
+impl Get<f64> for Device {
     //TODO: docs don't mention denormalized. Maybe we should just say floats are LE IEEE-754 and
     //send a link to that
     fn get(&mut self) -> Result<f64, ReadError> {
@@ -28,7 +28,7 @@ impl Get<f64> for TargetPoint3 {
     }
 }
 
-impl Get<f32> for TargetPoint3 {
+impl Get<f32> for Device {
     fn get(&mut self) -> Result<f32, ReadError> {
         let mut rbuff = [0u8; 4];
         self.serialport.read_exact(&mut rbuff)?;
@@ -44,7 +44,7 @@ impl Get<f32> for TargetPoint3 {
     }
 }
 
-impl Get<i32> for TargetPoint3 {
+impl Get<i32> for Device {
     fn get(&mut self) -> Result<i32, ReadError> {
         let mut rbuff = [0u8; 4];
         self.serialport.read_exact(&mut rbuff)?;
@@ -60,7 +60,7 @@ impl Get<i32> for TargetPoint3 {
     }
 }
 
-impl Get<i16> for TargetPoint3 {
+impl Get<i16> for Device {
     fn get(&mut self) -> Result<i16, ReadError> {
         let mut rbuff = [0u8; 2];
         self.serialport.read_exact(&mut rbuff)?;
@@ -76,7 +76,7 @@ impl Get<i16> for TargetPoint3 {
     }
 }
 
-impl Get<i8> for TargetPoint3 {
+impl Get<i8> for Device {
     fn get(&mut self) -> Result<i8, ReadError> {
         let mut rbuff = [0u8; 1];
         self.serialport.read_exact(&mut rbuff)?;
@@ -92,7 +92,7 @@ impl Get<i8> for TargetPoint3 {
     }
 }
 
-impl Get<u32> for TargetPoint3 {
+impl Get<u32> for Device {
     fn get(&mut self) -> Result<u32, ReadError> {
         let mut rbuff = [0u8; 4];
         self.serialport.read_exact(&mut rbuff)?;
@@ -108,7 +108,7 @@ impl Get<u32> for TargetPoint3 {
     }
 }
 
-impl Get<u16> for TargetPoint3 {
+impl Get<u16> for Device {
     fn get(&mut self) -> Result<u16, ReadError> {
         let mut rbuff = [0u8; 2];
         self.serialport.read_exact(&mut rbuff)?;
@@ -124,7 +124,7 @@ impl Get<u16> for TargetPoint3 {
     }
 }
 
-impl Get<u8> for TargetPoint3 {
+impl Get<u8> for Device {
     fn get(&mut self) -> Result<u8, ReadError> {
         let mut rbuff = [0u8; 1];
         self.serialport.read_exact(&mut rbuff)?;
@@ -140,7 +140,7 @@ impl Get<u8> for TargetPoint3 {
     }
 }
 
-impl Get<bool> for TargetPoint3 {
+impl Get<bool> for Device {
     fn get(&mut self) -> Result<bool, ReadError> {
         let mut rbuff = [0u8; 1];
         self.serialport.read_exact(&mut rbuff)?;

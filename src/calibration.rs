@@ -1,8 +1,8 @@
 use crate::command::Command;
 use crate::responses::Get;
-use crate::{RWError, ReadError, TargetPoint3, WriteError};
+use crate::{RWError, ReadError, Device, WriteError};
 
-impl TargetPoint3 {
+impl Device {
     /// First, note that in order to perform a user calibration, it is necessary to place the TargetPoint3 in Compass Mode, as discussed in User Manual Section 7.7. Note that TargetPoint3 allows for a maximum of 18 calibration points.
     /// See User Manual for calibration instructions.
     /// This frame commands the TargetPoint3 to start user calibration with the current sensor acquisition parameters, internal configurations, and FIR filter settings.
